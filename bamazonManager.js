@@ -6,18 +6,14 @@ var mysql = require('mysql');
 var connection = mysql.createConnection({
 	host: 'localhost',
 	port: 3306,
-
-	// Your username
 	user: 'root',
-
-	// Your password
 	password: '',
 	database: 'Bamazon_db'
 });
 
 // promptManagerAction will present menu options to the manager and trigger appropriate logic
 function promptManagerAction() {
-	// console.log('___ENTER promptManagerAction___');
+	console.log('___ENTER promptManagerAction___');
 
 	// Prompt the manager to select an option
 	inquirer.prompt([
@@ -64,7 +60,7 @@ function promptManagerAction() {
 
 // displayInventory will retrieve the current inventory from the database and output it to the console
 function displayInventory() {
-	// console.log('___ENTER displayInventory___');
+	console.log('___ENTER displayInventory___');
 
 	// Construct the db query string
 	queryStr = 'SELECT * FROM products';
@@ -79,9 +75,9 @@ function displayInventory() {
 		var strOut = '';
 		for (var i = 0; i < data.length; i++) {
 			strOut = '';
-			strOut += 'Item ID: ' + data[i].item_id + '  //  ';
+			strOut += 'Item ID: ' + data[i].id + '  //  ';
 			strOut += 'Product Name: ' + data[i].product_name + '  //  ';
-			strOut += 'Department: ' + data[i].department_name + '  //  ';
+			strOut += 'Department: ' + data[i].department + '  //  ';
 			strOut += 'Price: $' + data[i].price + '  //  ';
 			strOut += 'Quantity: ' + data[i].stock_quantity + '\n';
 
@@ -112,9 +108,9 @@ function displayLowInventory() {
 		var strOut = '';
 		for (var i = 0; i < data.length; i++) {
 			strOut = '';
-			strOut += 'Item ID: ' + data[i].item_id + '  //  ';
+			strOut += 'Item ID: ' + data[i].id + '  //  ';
 			strOut += 'Product Name: ' + data[i].product_name + '  //  ';
-			strOut += 'Department: ' + data[i].department_name + '  //  ';
+			strOut += 'Department: ' + data[i].department + '  //  ';
 			strOut += 'Price: $' + data[i].price + '  //  ';
 			strOut += 'Quantity: ' + data[i].stock_quantity + '\n';
 
@@ -155,13 +151,13 @@ function validateNumeric(value) {
 
 // addInventory will guilde a user in adding additional quantify to an existing item
 function addInventory() {
-	// console.log('___ENTER addInventory___');
+	console.log('___ENTER addInventory___');
 
 	// Prompt the user to select an item
 	inquirer.prompt([
 		{
 			type: 'input',
-			name: 'item_id',
+			name: 'id',
 			message: 'Please enter the Item ID for stock_count update.',
 			validate: validateInteger,
 			filter: Number
@@ -174,15 +170,15 @@ function addInventory() {
 			filter: Number
 		}
 	]).then(function(input) {
-		// console.log('Manager has selected: \n    item_id = '  + input.item_id + '\n    additional quantity = ' + input.quantity);
+		// console.log('Manager has selected: \n    item_id = '  + input.id + '\n    additional quantity = ' + input.quantity);
 
-		var item = input.item_id;
+		var item = input.id;
 		var addQuantity = input.quantity;
 
 		// Query db to confirm that the given item ID exists and to determine the current stock_count
 		var queryStr = 'SELECT * FROM products WHERE ?';
 
-		connection.query(queryStr, {item_id: item}, function(err, data) {
+		connection.query(queryStr, {id: item}, function(err, data) {
 			if (err) throw err;
 
 			// If the user has selected an invalid item ID, data attay will be empty
@@ -201,7 +197,7 @@ function addInventory() {
 				console.log('Updating Inventory...');
 
 				// Construct the updating query string
-				var updateQueryStr = 'UPDATE products SET stock_quantity = ' + (productData.stock_quantity + addQuantity) + ' WHERE item_id = ' + item;
+				var updateQueryStr = 'UPDATE products SET stock_quantity = ' + (productData.stock_quantity + addQuantity) + ' WHERE id = ' + item;
 				// console.log('updateQueryStr = ' + updateQueryStr);
 
 				// Update the inventory
@@ -232,7 +228,7 @@ function createNewProduct() {
 		},
 		{
 			type: 'input',
-			name: 'department_name',
+			name: 'department',
 			message: 'Which department does the new product belong to?',
 		},
 		{
@@ -251,7 +247,7 @@ function createNewProduct() {
 		// console.log('input: ' + JSON.stringify(input));
 
 		console.log('Adding New Item: \n    product_name = ' + input.product_name + '\n' +  
-									   '    department_name = ' + input.department_name + '\n' +  
+									   '    department = ' + input.department + '\n' +  
 									   '    price = ' + input.price + '\n' +  
 									   '    stock_quantity = ' + input.stock_quantity);
 
